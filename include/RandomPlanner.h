@@ -75,8 +75,7 @@ public:
    * @param std::pair goal position
    */
   /* ----------------------------------------------------------------*/
-  RandomPlanner(std::vector<std::vector<int>>, std::pair<int, int>,
-                std::pair<int, int>);
+  RandomPlanner();
   /* ----------------------------------------------------------------*/
   /**
    * @brief  to Move in up direction, updates current node
@@ -178,7 +177,9 @@ public:
    *          max number of steps are out or goal is reached.
    */
   /* ----------------------------------------------------------------*/
-  void moveAround();
+  std::vector<std::pair<int, int>> search(std::vector<std::vector<int>>,
+                                          std::pair<int, int>,
+                                          std::pair<int, int>);
 
   /* ----------------------------------------------------------------*/
   /**
@@ -195,4 +196,5 @@ public:
 
   std::vector<std::pair<int, int>> findNeighbors(std::pair<int, int>);
   bool allNeighborsInMemory(std::pair<int, int>);
+  std::vector<std::pair<int, int>> getPath();
 };

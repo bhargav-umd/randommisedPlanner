@@ -41,16 +41,8 @@
  * @param goal goal location of robot
  */
 /* ----------------------------------------------------------------*/
-RandomPlanner::RandomPlanner(std::vector<std::vector<int>> map,
-                             std::pair<int, int> pose,
-                             std::pair<int, int> goal) {
-  this->world_map = map;
-  this->robot_pose = pose;
-  this->goal_pose = goal;
-  this->current_node.position_ = pose;
-  this->x_length = int(world_map.size()) - 1;    // size of map in x direction
-  this->y_length = int(world_map[1].size()) - 1; // vertical size of map
-}
+RandomPlanner::RandomPlanner(){};
+// vertical size of map
 /* ----------------------------------------------------------------*/
 /**
  * @brief  to produce random direction in 1-4 rangle denoting
@@ -269,6 +261,7 @@ bool RandomPlanner::allNeighborsInMemory(std::pair<int, int> position) {
     return false;
 }
 
+// void RandomPlanner::set_map(std::vector < std::vector<int>)
 /* ----------------------------------------------------------------*/
 /**
  * @brief  Moves in random directions, can update the locaiton only if the
@@ -276,7 +269,17 @@ bool RandomPlanner::allNeighborsInMemory(std::pair<int, int> position) {
  *         queue unless its the only option forrobot to move
  */
 /* ----------------------------------------------------------------*/
-void RandomPlanner::moveAround() {
+std::vector<std::pair<int, int>>
+RandomPlanner::search(std::vector<std::vector<int>> map,
+                      std::pair<int, int> robot_pose,
+                      std::pair<int, int> goal_pose) {
+  this->world_map = map;
+  this->robot_pose = robot_pose;
+  this->goal_pose = goal_pose;
+  this->current_node.position_ = robot_pose;
+  this->x_length = int(world_map.size()) - 1; // size of map in x direction
+  this->y_length = int(world_map[1].size()) - 1;
+
   this->setStartNode();
   this->setGoalNode();
   this->current_node = this->start_node;
@@ -302,7 +305,6 @@ void RandomPlanner::moveAround() {
   while (steps_taken <= this->max_step_number) {
     int dir = randomDirection();
     // std::cout << "random direction: " << dir << std::endl;
-    bool leftFlag = false, UpFlag = false, downFlag = false, rightFlag = false;
 
     if (dir == 1) {
       std::pair<int, int> cu_pose = this->current_node.position_;
@@ -319,7 +321,6 @@ void RandomPlanner::moveAround() {
                                              // to keep track of
                                              // path
           steps_taken++;                     // iupdating number of steps taken
-          UpFlag = true;
         }
       }
     }
@@ -333,7 +334,6 @@ void RandomPlanner::moveAround() {
           this->updateLastSteps(this->current_node);
           this->path_.push_back(this->current_node.position_);
           steps_taken++;
-          leftFlag = true;
         }
       }
     }
@@ -347,7 +347,6 @@ void RandomPlanner::moveAround() {
           this->updateLastSteps(this->current_node);
           this->path_.push_back(this->current_node.position_);
           steps_taken++;
-          downFlag = true;
         }
       }
     }
@@ -361,7 +360,6 @@ void RandomPlanner::moveAround() {
           this->updateLastSteps(this->current_node);
           this->path_.push_back(this->current_node.position_);
           steps_taken++;
-          downFlag = true;
         }
       }
     }
@@ -429,16 +427,11 @@ void RandomPlanner::moveAround() {
     if (this->current_node.position_ == this->goal_node.position_) {
       break;
     }
-    // steps_taken++;
   }
   if (this->current_node.position_ != this->goal_node.position_) {
     std::cout << "goal not found" << std::endl;
   }
-}
-void RandomPlanner::printPath() {
-  this->moveAround();
-  // std::cout << "goal node y is " << goal_pose.first << std::endl;
-  // std::cout << "goal node x is " << goal_pose.second << std::endl;
+
   if (this->current_node.position_ == this->goal_node.position_) {
     for (int i = 0; i < int(path_.size()); i++) {
       if (i != int(path_.size()) - 1) {
@@ -450,4 +443,5 @@ void RandomPlanner::printPath() {
       }
     }
   }
+  return path_;
 }

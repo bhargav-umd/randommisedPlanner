@@ -8,8 +8,8 @@ int main() {
 
   std::pair<int, int> robot_pose(2, 0);
   std::pair<int, int> goal_pose(5, 5);
-
-  RandomPlanner a(world_state, robot_pose, goal_pose);
-  a.printPath();
+  RandomPlanner a;
+  std::vector<std::pair<int, int>> path =
+      a.search(world_state, robot_pose, goal_pose);
   return 0;
 }
