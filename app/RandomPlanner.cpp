@@ -1,6 +1,46 @@
+/* Copyright (C)
+ * 2019 - Bhargav Dandamudi
+ *
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the 'Software'), to deal in the Software without
+ * restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit
+ * persons to whom the Software is furnished to do so,subject to
+ * the following conditions:
+ * The above copyright notice and this permission notice shall
+ * be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED ''AS IS'', WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+ * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM,OUT OF OR IN CONNECTION WITH
+ * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+/**
+ * @file RandomPlanner.cpp
+ * @brief  Random Planner class definitions
+ * @author Bhargav Dandamudi
+ * @version 1
+ * @date 2019-04-03
+ */
 #include "../include/RandomPlanner.h"
 #include "../include/Node.h"
 
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  Default constructor which initializes planner with input
+ *
+ * @param map
+ * @param pose location of robot
+ * @param goal goal location of robot
+ */
+/* ----------------------------------------------------------------*/
 RandomPlanner::RandomPlanner(std::vector<std::vector<int>> map,
                              std::pair<int, int> pose,
                              std::pair<int, int> goal) {
@@ -8,19 +48,41 @@ RandomPlanner::RandomPlanner(std::vector<std::vector<int>> map,
   this->robot_pose = pose;
   this->goal_pose = goal;
   this->current_node.position_ = pose;
-  this->x_length = int(world_map.size()) - 1;
-  this->y_length = int(world_map[1].size()) - 1;
+  this->x_length = int(world_map.size()) - 1;    // size of map in x direction
+  this->y_length = int(world_map[1].size()) - 1; // vertical size of map
 }
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  to produce random direction in 1-4 rangle denoting
+ * Directions
+ * 1 -> Up
+ * 2 -> Left
+ * 3 -> DOwn
+ * 4 ->  Right
+ *
+ * @return  direction
+ */
+/* ----------------------------------------------------------------*/
 int RandomPlanner::randomDirection() {
   int direction;
   srand(time(0));
   return direction = rand() % 4 + 1;
 }
 
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  sets goal Node from inputs of value(0=free) and location
+ */
+/* ----------------------------------------------------------------*/
 void RandomPlanner::setGoalNode() {
   this->goal_node.value_ = this->world_map[goal_pose.first][goal_pose.second];
   this->goal_node.position_ = this->goal_pose;
 }
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  sets start node from starting locaiton and value (0=free)
+ */
+/* ----------------------------------------------------------------*/
 void RandomPlanner::setStartNode() {
   this->start_node.value_ =
       this->world_map[robot_pose.first][robot_pose.second];
@@ -28,6 +90,14 @@ void RandomPlanner::setStartNode() {
   //  this->start_node.parent_ = &start_node;
 }
 
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  Update Last steps with new Node, remove first in and add new element
+ *          to planners short memory of length sqrt(max_step_number)
+ *
+ * @param a_node new node to be included in memory
+ */
+/* ----------------------------------------------------------------*/
 void RandomPlanner::updateLastSteps(Node a_node) {
   if (int(this->last_steps.size()) <= int(sqrt(this->max_step_number))) {
     this->last_steps.push_back(a_node.position_);
@@ -47,6 +117,16 @@ bool RandomPlanner::checkLastNSteps(Node toSearch) {
   return false;
 }
 
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  Checks if the position is valid positon in map and has obstacle ornot
+ *         1 = obstacle, 0= free
+ *
+ * @param to_be_checked location to be checked
+ *
+ * @return bool if its obstacle or free space
+ */
+/* ----------------------------------------------------------------*/
 bool RandomPlanner::isObstacle(std::pair<int, int> to_be_checked) {
   if (to_be_checked.first > y_length || to_be_checked.first < 0 ||
       to_be_checked.second > x_length || to_be_checked.second < 0) {
@@ -64,19 +144,34 @@ bool RandomPlanner::isObstacle(std::pair<int, int> to_be_checked) {
  * 3 -DOwn
  * 4 - Right
  */
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  Move in respective direction
+ *
+ * @param someNode
+ *
+ * @return Updated NOde
+ */
+/* ----------------------------------------------------------------*/
 Node RandomPlanner::moveUp(Node someNode) {
   Node tempNode;
   // tempNode.parent_ = &someNode;
   tempNode.position_.first = someNode.position_.first - 1;
   tempNode.position_.second = someNode.position_.second;
-  int a = tempNode.position_.first;
-  int b = tempNode.position_.second;
-  tempNode.value_ = this->world_map[a][b];
-  //  tempNode.value_ =
-  //    this->world_map[tempNode.position_.first][tempNode.position_.second];
+  tempNode.value_ =
+      this->world_map[tempNode.position_.first][tempNode.position_.second];
 
   return tempNode;
 }
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  Move in respective direction
+ *
+ * @param someNode
+ *
+ * @return Updated NOde
+ */
+/* ----------------------------------------------------------------*/
 Node RandomPlanner::moveLeft(Node someNode) {
   Node tempNode;
   // tempNode.parent_ = &someNode;
@@ -87,6 +182,15 @@ Node RandomPlanner::moveLeft(Node someNode) {
   return tempNode;
 }
 
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  Move in respective direction
+ *
+ * @param someNode
+ *
+ * @return Updated NOde
+ */
+/* ----------------------------------------------------------------*/
 Node RandomPlanner::moveDown(Node someNode) {
   Node tempNode;
   // tempNode.parent_ = &someNode;
@@ -97,6 +201,15 @@ Node RandomPlanner::moveDown(Node someNode) {
   return tempNode;
 }
 
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  Move in respective direction
+ *
+ * @param someNode
+ *
+ * @return Updated NOde
+ */
+/* ----------------------------------------------------------------*/
 Node RandomPlanner::moveRight(Node someNode) {
   Node tempNode;
   // tempNode.parent_ = &someNode;
@@ -114,12 +227,22 @@ Node RandomPlanner::moveRight(Node someNode) {
  * 4 - Right
  */
 
+/* ----------------------------------------------------------------*/
+/**
+ * @brief  Moves in random directions, can update the locaiton only if the
+ *         robot can move in that direction and the new node is stored in
+ *         queue unless its the only option forrobot to move
+ */
+/* ----------------------------------------------------------------*/
 void RandomPlanner::moveAround() {
   this->setStartNode();
   this->setGoalNode();
   this->current_node = this->start_node;
   this->path_.push_back(start_node.position_);
   int steps_taken = 0;
+
+  // Basic obvious Sanity check for goal and starting locaition
+
   if (this->start_node.position_ == this->goal_node.position_) {
     std::cout << "start node and goal node are same" << std::endl;
   }
@@ -130,7 +253,10 @@ void RandomPlanner::moveAround() {
   if (isObstacle(this->goal_node.position_)) {
     std::cout << "goal node is Obstacle" << std::endl;
   }
-
+  //
+  // Starting loop for robot to move in random direction
+  //
+  //
   while (steps_taken <= this->max_step_number) {
     int dir = randomDirection();
     // std::cout << "random direction: " << dir << std::endl;
@@ -139,13 +265,17 @@ void RandomPlanner::moveAround() {
     if (dir == 1) {
       std::pair<int, int> cu_pose = this->current_node.position_;
       cu_pose.first = cu_pose.first - 1;
-      if (!isObstacle(cu_pose)) {
+      if (!isObstacle(cu_pose)) { // validity of node
         Node tempNode = this->moveUp(current_node);
-        if (!checkLastNSteps(tempNode)) {
+        if (!checkLastNSteps(tempNode)) { // if its not in memory
           this->current_node = tempNode;
-          this->updateLastSteps(this->current_node);
-          this->path_.push_back(this->current_node.position_);
-          steps_taken++;
+          this->updateLastSteps(this->current_node); // updated node to memory
+          this->path_.push_back(
+              this->current_node.position_); // as we moved to new
+                                             // location , updating
+                                             // to keep track of
+                                             // path
+          steps_taken++;                     // iupdating number of steps taken
           UpFlag = true;
         }
       }
@@ -192,7 +322,9 @@ void RandomPlanner::moveAround() {
         }
       }
     }
-
+    // if robot cannot move in any direction,all flags are 0 as all nodes
+    // are
+    // visited before or blocked , then it can move in random direction with
     if (!(downFlag || UpFlag || leftFlag || rightFlag)) {
       if (dir == 1) {
         std::pair<int, int> cu_pose = this->current_node.position_;
