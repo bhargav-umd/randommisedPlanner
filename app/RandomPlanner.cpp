@@ -116,6 +116,15 @@ bool RandomPlanner::checkLastNSteps(Node toSearch) {
   }
   return false;
 }
+bool RandomPlanner::checkLastNPositions(std::pair<int, int> position) {
+  for (auto i = this->last_steps.begin(); i != this->last_steps.end(); ++i) {
+    std::pair<int, int> p = *i;
+    if (position.first == p.first && position.second == p.second) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /* ----------------------------------------------------------------*/
 /**
@@ -186,7 +195,7 @@ Node RandomPlanner::moveLeft(Node someNode) {
 /**
  * @brief  Move in respective direction
  *
- * @param someNode
+ * @param someNode}
  *
  * @return Updated NOde
  */
@@ -226,6 +235,39 @@ Node RandomPlanner::moveRight(Node someNode) {
  * 3 -DOwn
  * 4 - Right
  */
+
+std::vector<std::pair<int, int>>
+RandomPlanner::findNeighbors(std::pair<int, int> position) {
+  std::pair<int, int> up(position.first - 1, position.second);
+  std::pair<int, int> left(position.first, position.second - 1);
+  std::pair<int, int> down(position.first + 1, position.second);
+  std::pair<int, int> right(position.first, position.second + 1);
+  std::vector<std::pair<int, int>> neighbors;
+  if (!this->isObstacle(up)) {
+    neighbors.push_back(up);
+  }
+  if (!this->isObstacle(left)) {
+    neighbors.push_back(left);
+  }
+  if (!this->isObstacle(down)) {
+    neighbors.push_back(down);
+  }
+  if (!this->isObstacle(right)) {
+    neighbors.push_back(right);
+  }
+  return neighbors;
+}
+bool RandomPlanner::allNeighborsInMemory(std::pair<int, int> position) {
+  std::vector<std::pair<int, int>> neighbors = findNeighbors(position);
+  bool check = true;
+  for (int i = 0; i < int(neighbors.size()); i++) {
+    check = check & checkLastNPositions(neighbors[i]);
+  }
+  if (check)
+    return true;
+  else
+    return false;
+}
 
 /* ----------------------------------------------------------------*/
 /**
@@ -267,6 +309,7 @@ void RandomPlanner::moveAround() {
       cu_pose.first = cu_pose.first - 1;
       if (!isObstacle(cu_pose)) { // validity of node
         Node tempNode = this->moveUp(current_node);
+        // upFlag = true;
         if (!checkLastNSteps(tempNode)) { // if its not in memory
           this->current_node = tempNode;
           this->updateLastSteps(this->current_node); // updated node to memory
@@ -325,7 +368,8 @@ void RandomPlanner::moveAround() {
     // if robot cannot move in any direction,all flags are 0 as all nodes
     // are
     // visited before or blocked , then it can move in random direction with
-    if (!(downFlag || UpFlag || leftFlag || rightFlag)) {
+    // if (!(downFlag || UpFlag || leftFlag || rightFlag)) {
+    if (allNeighborsInMemory(current_node.position_)) {
       if (dir == 1) {
         std::pair<int, int> cu_pose = this->current_node.position_;
         cu_pose.first = cu_pose.first - 1;

@@ -165,6 +165,7 @@ public:
    */
   /* ----------------------------------------------------------------*/
   bool checkLastNSteps(Node);
+  bool checkLastNPositions(std::pair<int, int>);
   /* ----------------------------------------------------------------*/
   /**
    * @brief  to print the robot path if found
@@ -191,4 +192,7 @@ public:
    */
   /* ----------------------------------------------------------------*/
   void setStartNode();
+
+  std::vector<std::pair<int, int>> findNeighbors(std::pair<int, int>);
+  bool allNeighborsInMemory(std::pair<int, int>);
 };
